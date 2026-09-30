@@ -1,0 +1,23 @@
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Validate JSON manifests
+        run: |
+          for f in .claude-plugin/marketplace.json plugins/engramic/.claude-plugin/plugin.json plugins/engramic/hooks/hooks.json plugins/engramic/config.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" && echo "ok $f"
+          done
+      - name: Hook tests
+        run: node --test plugins/engramic/test/hook.test.mjs plugins/engramic/test/scan.test.mjs plugins/engramic/test/workspace.test.mjs

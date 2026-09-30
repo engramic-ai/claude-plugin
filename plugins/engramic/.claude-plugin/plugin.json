@@ -1,0 +1,16 @@
+{
+  "name": "engramic",
+  "version": "0.8.3",
+  "description": "Record key decisions and milestones from Claude Code sessions to Engramic, and audit a repo's Engramic setup.",
+  "author": {
+    "name": "Paul Clegg"
+  },
+  "homepage": "https://engramic.ai",
+  "keywords": [
+    "engramic",
+    "mcp",
+    "decisions",
+    "governance"
+  ],
+  "license": "MIT"
+}

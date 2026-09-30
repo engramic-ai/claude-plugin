@@ -1,0 +1,14 @@
+{
+  "name": "engramic-ai",
+  "owner": {
+    "name": "Engramic Ltd"
+  },
+  "plugins": [
+    {
+      "name": "engramic",
+      "source": "./plugins/engramic",
+      "description": "Record key decisions and milestones from Claude Code sessions to Engramic, and audit a repo's Engramic setup.",
+      "version": "0.8.3"
+    }
+  ]
+}

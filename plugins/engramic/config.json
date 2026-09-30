@@ -1,0 +1,38 @@
+{
+  "milestones": [
+    {
+      "kind": "pull request merged",
+      "pattern": "\\bgh\\s+pr\\s+merge\\b"
+    },
+    {
+      "kind": "release created",
+      "pattern": "\\bgh\\s+release\\s+create\\b"
+    },
+    {
+      "kind": "tag pushed",
+      "pattern": "\\bgit(?:\\s+(?:-C\\s+\\S+|-c\\s+\\S+|--[A-Za-z-]+(?:=\\S+)?))*\\s+push\\b(?![^;&|\\n]*\\s(?:--delete|-d)\\b)(?=[^;&|\\n]*(?:\\s--tags\\b|\\s--follow-tags\\b|\\srefs/tags/|\\stag\\s|\\sv\\d+\\.\\d+))"
+    },
+    {
+      "kind": "issue closed",
+      "pattern": "\\bgh\\s+issue\\s+close\\b"
+    },
+    {
+      "kind": "package published",
+      "pattern": "\\b(?:npm|pnpm)\\s+publish\\b|\\byarn\\s+(?:npm\\s+)?publish\\b"
+    }
+  ],
+  "ignoreIfCommandMatches": "--dry-run",
+  "decisionPhrases": [
+    "\\blet'?s (go with|use|stick with|do it|lock)",
+    "\\b(we'?ll|we will) (go with|use|do)\\b",
+    "\\b(i'?ve |we'?ve )?decided\\b",
+    "\\bgoing with\\b",
+    "\\bsettled on\\b",
+    "\\bthe decision is\\b",
+    "\\bagreed\\b",
+    "\\block (it|that|this) in\\b",
+    "\\bthat'?s the plan\\b"
+  ],
+  "maxPromptLengthForDecisionScan": 3000,
+  "hintCooldownMinutes": 10
+}
