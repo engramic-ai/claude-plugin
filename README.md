@@ -32,7 +32,7 @@ The hooks and the setup scan are deterministic and tested. The skills' judgement
 
 ## Licence
 
-MIT licence, copyright Engramic Ltd (see [LICENSE](LICENSE)). The licence covers this code, not the ENGRAMIC name or logo, which are trademarks. You can use, modify and share the code; please don't use the name to suggest your fork is the official plugin.
+MIT licence, copyright Engramic Ltd (see [LICENSE](LICENSE)). The licence covers this code, not the ENGRAMIC name or logo, which are trademarks. That includes the icon file (`plugins/engramic/.claude-plugin/icon.svg`), which is the ENGRAMIC mark and is not licensed under MIT. You can use, modify and share the code; please don't use the name to suggest your fork is the official plugin.
 
 ## Layout
 

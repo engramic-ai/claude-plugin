@@ -65,4 +65,4 @@ Node 20 or later (tested on 20, 22 and 24). Without Node the hooks exit quietly 
 
 ## Licence
 
-MIT, copyright Engramic Ltd (see `LICENSE`). The licence covers the code, not the ENGRAMIC name or logo.
+MIT, copyright Engramic Ltd (see `LICENSE`). The licence covers the code, not the ENGRAMIC name or logo. The icon (`.claude-plugin/icon.svg`) is the ENGRAMIC mark and is not licensed under MIT.
