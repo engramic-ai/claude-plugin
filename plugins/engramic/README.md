@@ -86,6 +86,8 @@ The plugin has no server, makes no network calls of its own and sends no telemet
 
 Questions and bug reports: open an issue at https://github.com/engramic-ai/claude-plugin/issues.
 
+Security concerns: please don't open a public issue. Report them privately from the repository's Security tab (**Report a vulnerability**); see the [security policy](https://github.com/engramic-ai/claude-plugin/security/policy).
+
 ## Requirements
 
 Node 20 or later (tested on 20, 22 and 24). Without Node the hooks exit quietly and do nothing, the setup scan cannot run, and `engramic:setup` says so; the `record` skill does not need Node.
