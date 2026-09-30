@@ -19,7 +19,7 @@ Requires the Engramic MCP server to be connected in Claude Code.
 |---|---|---|---|---|
 | Claude Code (terminal, VS Code, desktop app Code tab) | Yes | Yes | Yes | Tested. Needs Node 20 or later on the machine. |
 | Claude Desktop Chat tab, claude.ai | `record` only, with the Engramic connector on | No (hooks run in Cowork and Claude Code, not chat) | No (needs a local repo) | From the docs, untested |
-| Cowork | Yes | Documented, but unverified: a reported issue says plugin hooks did not fire on Windows, and Node availability in the Cowork VM is unknown | Unverified | Untested |
+| Cowork | Yes | Documented, but unverified | Unverified | Untested |
 
 The value of the plugin is in Claude Code. Elsewhere, expect the recording skill and little else.
 
