@@ -104,9 +104,12 @@ function repoDefaults(cwd) {
 }
 
 function describePending(state) {
+  // Kinds and counts only. The hook never keeps prompt or command text: Claude already has it in context.
   const lines = [];
-  for (const m of state.milestones) lines.push(`- milestone (${m.kind}): ${m.command}`);
-  for (const c of state.candidates) lines.push(`- possible decision, user said: "${c.snippet}"`);
+  for (const m of state.milestones) lines.push(`- milestone (${m.kind})${m.by ? ` (by delegate ${m.by})` : ""}`);
+  if (state.candidates.length) {
+    lines.push(`- ${state.candidates.length} user message${state.candidates.length === 1 ? "" : "s"} this session that may have settled a decision`);
+  }
   return lines.join("\n");
 }
 
@@ -152,7 +155,7 @@ function userPrompt(input) {
   if (!compile(CONFIG.decisionPhrases).some((re) => re.test(prompt))) return;
 
   const state = loadState(input.session_id);
-  state.candidates.push({ at: Date.now(), snippet: prompt.slice(0, 140).replace(/\s+/g, " ") });
+  state.candidates.push({ at: Date.now() });
   state.candidates = state.candidates.slice(-20);
 
   const cooldown = CONFIG.hintCooldownMinutes * 60 * 1000;
@@ -201,11 +204,10 @@ function postTool(input) {
   });
   if (!hit) return;
 
-  const short = command.replace(/\s+/g, " ").slice(0, 160);
   const byDelegate = Boolean(input.agent_id);
   state.milestones.push({
     kind: hit.kind,
-    command: byDelegate ? `${short} (by delegate ${input.agent_type || input.agent_id})` : short,
+    by: byDelegate ? input.agent_type || input.agent_id : null,
     at: Date.now(),
   });
   state.milestones = state.milestones.slice(-20);
@@ -222,7 +224,7 @@ function postTool(input) {
 
   emitContext(
     "PostToolUse",
-    `Milestone flagged: ${hit.kind} (\`${short}\`). If that command succeeded, record it to Engramic now ` +
+    `Milestone flagged: ${hit.kind}. If that command succeeded, record it to Engramic now ` +
       "using the engramic:record skill (type action or event; include the PR, release or issue URL as a reference)."
   );
 }

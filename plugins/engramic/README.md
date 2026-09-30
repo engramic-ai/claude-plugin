@@ -59,6 +59,33 @@ Run `node skills/setup/scan.mjs` (or `engramic:setup`) from a workspace root and
 - `ENGRAMIC_RECORDER_STOP=off` disables only the Stop safety net (sensible for headless `claude -p` runs).
 - `ENGRAMIC_RECORDER_DEBUG=1` appends one line per hook call (event, tool, which fields were present, `agent_id` and `agent_type`) to `debug.log` in the `engramic-plugin` folder of your OS temp directory. It never logs command or prompt text. Use it to check what the hooks actually receive, for example inside subagents.
 
+## What it reads, keeps and sends
+
+The plugin has no server, makes no network calls of its own and sends no telemetry. Records reach Engramic only when Claude calls the Engramic MCP tools that you have connected, through the `engramic:record` skill. Decisions are shown to you before they are published; actions, events and discoveries publish without pausing.
+
+**The hooks** add short reminder text to Claude's context, and at most once per batch of unrecorded items the Stop hook asks Claude to continue before finishing. They never block a tool call and never change a file.
+
+- **They read:** the hook input from Claude Code (the event, the tool name, the command being run and the message being sent, only to match milestone commands and decision phrases), the plugin's `config.json`, and `.engramic.json` in the working folder.
+- **They keep:** one small state file per session in an `engramic-plugin` folder inside the OS temp directory. It holds counts, times and milestone kinds such as "pull request merged", and never the text of a prompt or a command.
+- **Optional debug log** (off by default, `ENGRAMIC_RECORDER_DEBUG=1`): event names, tool names, which fields were present, and `agent_id` and `agent_type`. No prompt or command text.
+- **They do not use** the network, child processes or dynamic code. The whole hook is one short file, `hooks/engramic-hook.mjs`, with a header comment explaining it.
+
+**The setup scan** (`skills/setup/scan.mjs` and `workspace.mjs`) is read-only. It reads `CLAUDE.md` and agent files, the settings files that decide Engramic permissions (including `~/.claude/settings.json`) and `.engramic.json`. In workspace mode it runs itself once per child repo. It changes nothing: `engramic:setup` proposes patches and applies them only after you approve.
+
+## Troubleshooting
+
+- **No hooks listed.** `/hooks` should show four. Hooks load when a session starts, so restart Claude Code after installing or updating, and check the plugin is enabled in `/plugin`.
+- **Claude says the Engramic tools are missing.** Check `/mcp`: the Engramic MCP server must be connected and signed in. The skills then tell Claude once and carry on without recording.
+- **Nothing happens and there are no errors.** Node 20 or later may be missing. The hooks then do nothing, and `engramic:setup` tells you the scan needs Node.
+- **Too many reminders.** `ENGRAMIC_RECORDER_STOP=off` disables only the Stop nudge; `ENGRAMIC_RECORDER=off` disables all the hooks.
+- **See what the hooks receive.** Set `ENGRAMIC_RECORDER_DEBUG=1` and read `debug.log` in the `engramic-plugin` folder of your OS temp directory.
+- **Records credited to the wrong person, or a repo that isn't set up.** Run `engramic:setup` in that repo; it checks the actor, anchor topic and recording instructions and proposes fixes.
+- **Uninstall.** `/plugin uninstall engramic@engramic-ai`, and delete the `engramic-plugin` temp folder if you want the state files gone.
+
+## Support
+
+Questions and bug reports: open an issue at https://github.com/engramic-ai/claude-plugin/issues.
+
 ## Requirements
 
 Node 20 or later (tested on 20, 22 and 24). Without Node the hooks exit quietly and do nothing, the setup scan cannot run, and `engramic:setup` says so; the `record` skill does not need Node.

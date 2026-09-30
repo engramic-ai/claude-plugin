@@ -13,6 +13,8 @@ Requires the Engramic MCP server to be connected in Claude Code.
     /plugin marketplace add engramic-ai/claude-plugin
     /plugin install engramic@engramic-ai
 
+What it reads, keeps and sends, and troubleshooting, are in [plugins/engramic/README.md](plugins/engramic/README.md).
+
 ### Where it runs
 
 | Surface | Skills | Hooks | Setup scan | Status |

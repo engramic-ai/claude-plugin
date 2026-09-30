@@ -105,7 +105,8 @@ test("stop blocks once for pending items, then not again", () => {
   run("post-tool", bash("gh pr merge 7"));
   const blocked = run("stop", {});
   assert.equal(blocked.decision, "block");
-  assert.match(blocked.reason, /gh pr merge 7/);
+  assert.match(blocked.reason, /milestone \(pull request merged\)/);
+  assert.doesNotMatch(blocked.reason, /gh pr merge/, "the command text is not kept");
   assert.equal(run("stop", {}), null);
 });
 
@@ -158,4 +159,26 @@ test("debug mode logs what the hook receives, without command or prompt text", (
 test("debug mode is off by default", () => {
   run("post-tool", bash("gh pr merge 1"));
   assert.ok(!fs.existsSync(path.join(tmp, "engramic-plugin", "debug.log")));
+});
+
+test("the state file holds no prompt text and no command text, and nothing echoes them back", () => {
+  const secret = "ghs_" + "S".repeat(30);
+  const prompt = "Right, we'll go with option B because of the invoice deadline for Acme";
+  const hint = run("user-prompt", { prompt });
+  assert.ok(hint, "decision language is still detected");
+  const nudge = run("post-tool", bash(`GH_TOKEN=${secret} gh pr merge 88 --squash`));
+  assert.match(nudge.hookSpecificOutput.additionalContext, /pull request merged/);
+  assert.doesNotMatch(JSON.stringify(nudge), new RegExp(secret));
+
+  // every file the hook wrote, under the temp folder it uses
+  const dir = path.join(tmp, "engramic-plugin");
+  const written = fs.readdirSync(dir).map((f) => fs.readFileSync(path.join(dir, f), "utf8")).join("\n");
+  for (const forbidden of [secret, "GH_TOKEN", "gh pr merge", "invoice", "Acme", "option B", "squash"]) {
+    assert.ok(!written.includes(forbidden), `state must not contain: ${forbidden}`);
+  }
+
+  const stop = run("stop", {});
+  assert.equal(stop.decision, "block");
+  for (const forbidden of [secret, "invoice", "Acme", "option B"]) assert.ok(!stop.reason.includes(forbidden));
+  assert.match(stop.reason, /1 user message/);
 });
