@@ -63,6 +63,8 @@ Run `node skills/setup/scan.mjs` (or `engramic:setup`) from a workspace root and
 
 The plugin has no server, makes no network calls of its own and sends no telemetry. Records reach Engramic only when Claude calls the Engramic MCP tools that you have connected, through the `engramic:record` skill. Decisions are shown to you before they are published; actions, events and discoveries publish without pausing.
 
+What Engramic does with the records you publish is covered by its [Privacy policy](https://www.engramic.ai/privacy/).
+
 **The hooks** add short reminder text to Claude's context, and at most once per batch of unrecorded items the Stop hook asks Claude to continue before finishing. They never block a tool call and never change a file.
 
 - **They read:** the hook input from Claude Code (the event, the tool name, the command being run and the message being sent, only to match milestone commands and decision phrases), the plugin's `config.json`, and `.engramic.json` in the working folder.

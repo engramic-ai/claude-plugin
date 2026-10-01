@@ -32,6 +32,10 @@ The value of the plugin is in Claude Code. Elsewhere, expect the recording skill
 
 The hooks and the setup scan are deterministic and tested. The skills' judgement is Markdown, tested by use: run `engramic:setup` in a real repo and see what it finds.
 
+## Privacy
+
+The plugin makes no network calls of its own; records reach Engramic only through the Engramic MCP connector you have connected. See the Engramic [Privacy policy](https://www.engramic.ai/privacy/).
+
 ## Licence
 
 MIT licence, copyright Engramic Ltd (see [LICENSE](LICENSE)). The licence covers this code, not the ENGRAMIC name or logo, which are trademarks. That includes the icon file (`plugins/engramic/.claude-plugin/icon.svg`), which is the ENGRAMIC mark and is not licensed under MIT. You can use, modify and share the code; please don't use the name to suggest your fork is the official plugin.

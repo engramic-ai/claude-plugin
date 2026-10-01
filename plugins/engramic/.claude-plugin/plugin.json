@@ -1,6 +1,6 @@
 {
   "name": "engramic",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "description": "Record key decisions and milestones from Claude Code sessions to Engramic, and audit a repo's Engramic setup.",
   "author": {
     "name": "Paul Clegg"
@@ -13,5 +13,6 @@
     "governance"
   ],
   "license": "MIT",
-  "repository": "https://github.com/engramic-ai/claude-plugin"
+  "repository": "https://github.com/engramic-ai/claude-plugin",
+  "privacyPolicyUrl": "https://www.engramic.ai/privacy/"
 }
