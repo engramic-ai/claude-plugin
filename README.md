@@ -1,6 +1,6 @@
 # claude-plugin
 
-Claude Code plugins for working with [Engramic](https://engramic.ai).
+Claude Code plugins for working with [Engramic](https://www.engramic.ai).
 
 ## engramic
 

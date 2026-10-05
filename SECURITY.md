@@ -12,7 +12,7 @@ Please include what you found, the steps to reproduce it, the plugin version (in
 
 This policy covers the code in this repository: the hook (`plugins/engramic/hooks/engramic-hook.mjs`), the setup scan (`plugins/engramic/skills/setup/scan.mjs` and `workspace.mjs`), the skills and the manifests.
 
-Problems with the Engramic service or its MCP server are outside this repository. Contact Engramic through https://engramic.ai.
+Problems with the Engramic service or its MCP server are outside this repository. Contact Engramic through https://www.engramic.ai.
 
 ## Supported versions
 
