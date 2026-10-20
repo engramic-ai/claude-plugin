@@ -72,7 +72,7 @@ What Engramic does with the records you publish is covered by its [Privacy polic
 - **Optional debug log** (off by default, `ENGRAMIC_RECORDER_DEBUG=1`): event names, tool names, which fields were present, and `agent_id` and `agent_type`. No prompt or command text.
 - **They do not use** the network, child processes or dynamic code. The whole hook is one short file, `hooks/engramic-hook.mjs`, with a header comment explaining it.
 
-**The setup scan** (`skills/setup/scan.mjs` and `workspace.mjs`) is read-only. It reads `CLAUDE.md` and agent files, the settings files that decide Engramic permissions (including `~/.claude/settings.json`) and `.engramic.json`. In workspace mode it runs itself once per child repo. It changes nothing: `engramic:setup` proposes patches and applies them only after you approve.
+**The setup scan** (`skills/setup/scan.mjs` and `workspace.mjs`) is read-only. It reads `CLAUDE.md` and agent files, the settings files that decide Engramic permissions (including the user settings file, `$CLAUDE_CONFIG_DIR/settings.json` when that is set, otherwise `~/.claude/settings.json`) and `.engramic.json`. In workspace mode it runs itself once per child repo. It changes nothing: `engramic:setup` proposes patches and applies them only after you approve.
 
 ## Troubleshooting
 

@@ -20,8 +20,15 @@ function tree(files) {
   return root;
 }
 
-const workspaceScan = (root) => {
-  const r = spawnSync("node", [SCAN, "--workspace", path.join(root, "ws"), "--home", path.join(root, "home")], { encoding: "utf8" });
+// Hermetic: a developer's own CLAUDE_CONFIG_DIR must not change results.
+const cleanEnv = () => {
+  const env = { ...process.env };
+  delete env.CLAUDE_CONFIG_DIR;
+  return env;
+};
+
+const workspaceScan = (root, extraArgs = []) => {
+  const r = spawnSync("node", [SCAN, "--workspace", path.join(root, "ws"), "--home", path.join(root, "home"), ...extraArgs], { encoding: "utf8", env: cleanEnv() });
   assert.equal(r.status, 0, r.stderr);
   return JSON.parse(r.stdout);
 };
@@ -128,7 +135,7 @@ test("the hook commands still run the hook when node is present", () => {
 });
 
 const run = (args, cwd) => {
-  const r = spawnSync("node", [SCAN, ...args], { cwd, encoding: "utf8" });
+  const r = spawnSync("node", [SCAN, ...args], { cwd, encoding: "utf8", env: cleanEnv() });
   assert.equal(r.status, 0, r.stderr);
   return JSON.parse(r.stdout);
 };
@@ -227,4 +234,13 @@ test("a folder with only worktree children does not count as a workspace", () =>
   const root = tree({ "ws/CLAUDE.md": REC, "ws/wt/.git": gitFile("/x/.git/worktrees/wt") });
   const out = run(["--home", path.join(root, "home")], path.join(root, "ws"));
   assert.ok(Array.isArray(out.findings) && !out.repos);
+});
+
+test("workspace mode forwards the config dir to each child scan", () => {
+  const root = workspace({ "cfg/settings.json": { permissions: { allow: ["mcp__claude_ai_Engramic__*"] } } });
+  const missing = (out) => out.repos.map((r) => r.findings.SETTINGS_MISSING_READ_TOOL ?? 0);
+  assert.ok(missing(workspaceScan(root)).every((n) => n > 0));
+  const out = workspaceScan(root, ["--config-dir", path.join(root, "cfg")]);
+  assert.equal(out.repos.length, 3);
+  assert.deepEqual(missing(out), [0, 0, 0]);
 });

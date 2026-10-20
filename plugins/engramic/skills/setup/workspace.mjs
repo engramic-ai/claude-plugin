@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Workspace mode for the engramic:setup scan. Read-only. Run through scan.mjs:
 //
-//   node scan.mjs --workspace [DIR] [--home DIR]
+//   node scan.mjs --workspace [DIR] [--home DIR] [--config-dir DIR]
 //
 // Lists the workspace root and each child git repo of it (DIR, default the current folder) with its
 // Engramic setup, by running the normal repo scan on each, then cross-checks the actors against the roster in the
@@ -25,6 +25,7 @@ const opt = (name) => {
 };
 const WORKSPACE = path.resolve(opt("workspace") ?? process.cwd());
 const HOME = path.resolve(opt("home") ?? os.homedir());
+const CONFIG_DIR = opt("config-dir");
 
 const read = (p) => {
   try {
@@ -101,7 +102,7 @@ for (const e of entries.filter((x) => x.isDirectory() && !x.name.startsWith(".")
 }
 
 function summarise(name, dir) {
-  const r = spawnSync(process.execPath, [SCAN, "--repo", dir, "--home", HOME], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [SCAN, "--repo", dir, "--home", HOME, ...(CONFIG_DIR ? ["--config-dir", CONFIG_DIR] : [])], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
   let scan;
   try {
     scan = JSON.parse(r.stdout);

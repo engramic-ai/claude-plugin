@@ -4,7 +4,7 @@
 // Finds configuration problems by rule and prints JSON. The skill then resolves
 // topic ids against Engramic (this script cannot call MCP) and proposes patches.
 //
-// Usage: node scan.mjs [--repo DIR] [--home DIR] [--live-prefix PREFIX]
+// Usage: node scan.mjs [--repo DIR] [--home DIR] [--config-dir DIR] [--live-prefix PREFIX]
 
 import fs from "node:fs";
 import os from "node:os";
@@ -54,6 +54,10 @@ const opt = (name, dflt) => {
 };
 const REPO = path.resolve(opt("repo", process.cwd()));
 const HOME = path.resolve(opt("home", os.homedir()));
+// Claude Code reads user settings from $CLAUDE_CONFIG_DIR when it is set, else ~/.claude. The value is not
+// tilde-expanded (Claude Code treats "~." as a relative folder name), so path.resolve mirrors it.
+const envConfigDir = process.env.CLAUDE_CONFIG_DIR;
+const CONFIG_DIR = path.resolve(opt("config-dir", envConfigDir ? envConfigDir : path.join(HOME, ".claude")));
 const LIVE_PREFIX = opt("live-prefix", "mcp__claude_ai_Engramic__");
 const LEGACY_PREFIX = "mcp__Engramic__";
 const MAX_ANCESTORS = 3;
@@ -222,12 +226,15 @@ for (const { dir, distance } of dirs) {
     /* no agents dir */
   }
   for (const f of agentFiles) files.push(scanMarkdown(path.join(agentsDir, f), "agent", distance));
+  // HOME/.claude is either the user config dir (read below as user settings) or, with a custom config
+  // dir, a folder Claude Code does not read at all.
+  if (dir === HOME) continue;
   for (const s of ["settings.json", "settings.local.json"]) {
     const sc = scanSettings(path.join(dir, ".claude", s));
     if (sc.exists) settings.push(sc);
   }
 }
-const userSettings = scanSettings(path.join(HOME, ".claude", "settings.json"));
+const userSettings = scanSettings(path.join(CONFIG_DIR, "settings.json"));
 if (userSettings.exists) settings.push(userSettings);
 
 

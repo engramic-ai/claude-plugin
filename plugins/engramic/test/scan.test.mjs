@@ -18,8 +18,15 @@ function tree(files) {
   return root;
 }
 
-function scan(root, repoRel, homeRel = "home") {
-  const r = spawnSync("node", [SCAN, "--repo", path.join(root, repoRel), "--home", path.join(root, homeRel)], { encoding: "utf8" });
+// Hermetic: a developer's own CLAUDE_CONFIG_DIR must not change results.
+const cleanEnv = (extra = {}) => {
+  const env = { ...process.env, ...extra };
+  if (!("CLAUDE_CONFIG_DIR" in extra)) delete env.CLAUDE_CONFIG_DIR;
+  return env;
+};
+
+function scan(root, repoRel, homeRel = "home", { args = [], env = {} } = {}) {
+  const r = spawnSync("node", [SCAN, "--repo", path.join(root, repoRel), "--home", path.join(root, homeRel), ...args], { encoding: "utf8", env: cleanEnv(env) });
   assert.equal(r.status, 0, r.stderr);
   return JSON.parse(r.stdout);
 }
@@ -352,3 +359,58 @@ test("another repo's workspace agent file is not this repo's business, but the w
   assert.ok(!uiTargets.includes("docs/site-notes.md"));
 });
 
+
+const allowSearch = { permissions: { allow: [`${LIVE}engramic_search`] } };
+const settingsPaths = (out) => out.settings.map((s) => s.path);
+
+test("user settings come from CLAUDE_CONFIG_DIR when set, and home/.claude is ignored", () => {
+  const root = tree({
+    "r/.engramic.json": "{}",
+    "home/.claude/settings.json": allowSearch,
+    "cfg/settings.json": { permissions: { allow: [`${LIVE}engramic_summary`] } },
+  });
+  const out = scan(root, "r", "home", { env: { CLAUDE_CONFIG_DIR: path.join(root, "cfg") } });
+  assert.deepEqual(settingsPaths(out), [path.join(root, "cfg", "settings.json")]);
+  assert.ok(!out.missingReadTools.includes("engramic_summary"));
+  assert.ok(out.missingReadTools.includes("engramic_search"));
+});
+
+test("--config-dir wins over CLAUDE_CONFIG_DIR", () => {
+  const root = tree({
+    "r/.engramic.json": "{}",
+    "env/settings.json": allowSearch,
+    "flag/settings.json": allowSearch,
+  });
+  const out = scan(root, "r", "home", { args: ["--config-dir", path.join(root, "flag")], env: { CLAUDE_CONFIG_DIR: path.join(root, "env") } });
+  assert.deepEqual(settingsPaths(out), [path.join(root, "flag", "settings.json")]);
+});
+
+test("with no config dir set, user settings are read from home/.claude", () => {
+  const root = tree({ "r/.engramic.json": "{}", "home/.claude/settings.json": allowSearch });
+  const out = scan(root, "r");
+  assert.deepEqual(settingsPaths(out), [path.join(root, "home", ".claude", "settings.json")]);
+});
+
+test("home/.claude/settings.json is listed once when home is an ancestor of the repo", () => {
+  const root = tree({
+    "home/.claude/settings.json": allowSearch,
+    "home/.claude/settings.local.json": allowSearch,
+    "home/work/.claude/settings.json": allowSearch,
+    "home/work/r/.engramic.json": "{}",
+  });
+  const out = scan(root, "home/work/r", "home");
+  const paths = settingsPaths(out);
+  assert.equal(paths.filter((p) => p === path.join(root, "home", ".claude", "settings.json")).length, 1);
+  assert.ok(!paths.includes(path.join(root, "home", ".claude", "settings.local.json")));
+  assert.ok(paths.includes(path.join(root, "home", "work", ".claude", "settings.json")));
+});
+
+test("with a custom config dir, home/.claude settings are not read at all", () => {
+  const root = tree({
+    "home/.claude/settings.json": allowSearch,
+    "home/r/.engramic.json": "{}",
+    "cfg/settings.json": allowSearch,
+  });
+  const out = scan(root, "home/r", "home", { env: { CLAUDE_CONFIG_DIR: path.join(root, "cfg") } });
+  assert.deepEqual(settingsPaths(out), [path.join(root, "cfg", "settings.json")]);
+});
